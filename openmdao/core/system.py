@@ -643,6 +643,10 @@ class System(object):
 
         self._setup_vec_names(mode)
         self._setup_global_connections()
+        self._setup_deferred_var_size()
+        self._setup_var_data()
+        self._setup_vec_names(mode)
+
 
         if self.pathname == '':
             self._top_level_setup(mode)
@@ -1623,6 +1627,15 @@ class System(object):
 
         for s in self._subsystems_myproc:
             s._setup_relevance(mode, relevant)
+
+    def _setup_deferred_var_size(self):
+        """
+        add the size infor for inputs and outputs that have been created 
+        with shape_by_conn=True
+        
+        overloaded for groups 
+        """        
+        pass
 
     def _setup_connections(self):
         """
@@ -4396,6 +4409,7 @@ class System(object):
         conns = self._problem_meta.get('connections', {})
         vdict = {}
         variables = filtered_vars.get(kind)
+        variables = variables.sort()
         if variables:
             vec = self._vectors[kind][vec_name]
             srcget = self._vectors['output'][vec_name]._abs_get_val
