@@ -397,8 +397,8 @@ class Component(System):
                     # add sparsity info to existing partial info
                     self._subjacs_info[abs_key]['sparsity'] = tup
 
-    def add_input(self, name, val=None, shape=None, src_indices=None, flat_src_indices=None,
-                  units=None, desc='', tags=None, shape_by_conn=False, copy_shape=None):
+    def add_input(self, name, val=1.0, shape=None, src_indices=None, flat_src_indices=None,
+                  units=None, desc='', tags=None):
         """
         Add an input variable to the component.
 
@@ -436,16 +436,6 @@ class Component(System):
             metadata for added variable
         """
         # First, type check all arguments
-        if (shape_by_conn or copy_shape) and (shape is not None or val is not None):
-            raise ValueError("%s: If using an assumed shape, the shape argument should not be passed, "
-                                "but '%s' was given" % (self.msginfo, type(shape)))  
-        if copy_shape and shape_by_conn:
-            raise ValueError("%s: Cannot use booth shape_by_conn and copy_shape" % (self.msginfo))  
-
-
-        if val is None:
-            val = 1.0
-
         if not isinstance(name, str):
             raise TypeError('%s: The name argument should be a string.' % self.msginfo)
         if not _valid_var_name(name):
@@ -470,7 +460,6 @@ class Component(System):
         if tags is not None and not isinstance(tags, (str, list)):
             raise TypeError('The tags argument should be a str or list')
 
-
         # value, shape: based on args, making sure they are compatible
         value, shape, src_indices = ensure_compatible(name, val, shape, src_indices)
         distributed = self.options['distributed']
@@ -485,8 +474,6 @@ class Component(System):
             'desc': desc,
             'distributed': distributed,
             'tags': make_set(tags),
-            'shape_by_conn': shape_by_conn,
-            'copy_shape': copy_shape,
         }
 
         if src_indices is not None:
@@ -563,8 +550,8 @@ class Component(System):
 
         return metadata
 
-    def add_output(self, name, val=None, shape=None, units=None, res_units=None, desc='',
-                   lower=None, upper=None, ref=1.0, ref0=0.0, res_ref=1.0, shape_by_conn=False, copy_shape=None, tags=None):
+    def add_output(self, name, val=1.0, shape=None, units=None, res_units=None, desc='',
+                   lower=None, upper=None, ref=1.0, ref0=0.0, res_ref=1.0, tags=None):
         """
         Add an output variable to the component.
 
@@ -613,17 +600,6 @@ class Component(System):
         dict
             metadata for added variable
         """
-        # First, type check all arguments
-        if (shape_by_conn or copy_shape) and (shape is not None or val is not None):
-            raise ValueError("%s: If using an assumed shape, the shape argument should not be passed, "
-                                "but shape = '%s' and val =  %s was given" % (self.msginfo, type(shape), type(val)))  
-        if copy_shape and shape_by_conn:
-            raise ValueError("%s: Cannot use booth shape_by_conn and copy_shape" % (self.msginfo))  
-
-
-        if val is None:
-            val = 1.0
-
         if not isinstance(name, str):
             raise TypeError('%s: The name argument should be a string.' % self.msginfo)
         if not _valid_var_name(name):
@@ -704,8 +680,6 @@ class Component(System):
             'res_ref': format_as_float_or_array('res_ref', res_ref, flatten=True),
             'lower': lower,
             'upper': upper,
-            'shape_by_conn': shape_by_conn,
-            'copy_shape': copy_shape
         }
 
         # We may not know the pathname yet, so we have to use name for now, instead of abs_name.
@@ -1416,6 +1390,7 @@ class Component(System):
                     if not self._coloring_info['dynamic']:
                         coloring._check_config_partial(self)
                     self._update_subjac_sparsity(coloring.get_subjac_sparsity())
+
 
 class _DictValues(object):
     """

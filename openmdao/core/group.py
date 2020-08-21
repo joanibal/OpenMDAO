@@ -927,6 +927,7 @@ class Group(System):
         nproc = self.comm.size
 
         subsystems_proc_range = self._subsystems_proc_range
+
         # Recursion
         for subsys in self._subsystems_myproc:
             subsys._setup_var_sizes()
@@ -1532,12 +1533,11 @@ class Group(System):
                 flat = abs2meta[abs_in]['flat_src_indices']
 
                 if src_indices is None and out_shape != in_full_shape:
-
                     # out_shape != in_shape is allowed if
                     # there's no ambiguity in storage order
                     if not array_connection_compatible(in_shape, out_shape):
                         msg = f"{self.msginfo}: The source and target shapes do not match or " + \
-                              f"are ambiguous for the connection '{abs_out}' (source) to '{abs_in}' (target). " + \
+                              f"are ambiguous for the connection '{abs_out}' to '{abs_in}'. " + \
                               f"The source shape is {tuple([int(s) for s in out_shape])} " + \
                               f"but the target shape is {tuple([int(s) for s in in_shape])}."
                         if self._raise_connection_errors:
@@ -1565,7 +1565,7 @@ class Group(System):
                                   f"{src_indices} do not specify a " + \
                                   f"valid shape for the connection '{abs_out}' to " + \
                                   f"'{abs_in}'. The target shape is " + \
-                                  f"{in_shape} for {abs_out} but indices are {src_indices.shape}."
+                                  f"{in_shape} but indices are {src_indices.shape}."
                             if self._raise_connection_errors:
                                 raise ValueError(msg)
                             else:
